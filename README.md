@@ -71,26 +71,34 @@ Final order (by time of day):
 
 ## 🧪 Testing PawPal+
 
-```bash
-# Run the full test suite:
-pytest
+Run the test suite with:
 
-# Run with coverage:
-pytest --cov
+```bash
+python -m pytest
 ```
+
+Tests cover:
+- Task completion (`mark_complete()` correctly flips the completed flag)
+- Task addition (adding a task increases a pet's task count)
+- Sorting correctness (`sort_by_time()` returns tasks in chronological order regardless of insertion order)
+- Recurrence logic (completing a DAILY task auto-generates the next occurrence with `due_date` advanced by 1 day)
+- Conflict detection (`detect_conflicts()` flags tasks scheduled at the exact same time, and returns an empty list when there are none)
 
 Sample test output:
 
-============================= test session starts =============================
-platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.14/bin/python3
-cachedir: .pytest_cache
-rootdir: /Users/hansikamodupalli/ai110-module2show-pawpal-starter
-collected 2 items                                                             
+```
+======================== test session starts ========================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.6.0
+collected 5 items                                                   
+tests/test_pawpal.py::test_mark_complete PASSED               [ 20%]
+tests/test_pawpal.py::test_add_task_increases_count PASSED    [ 40%]
+tests/test_pawpal.py::test_sort_by_time_chronological PASSED  [ 60%]
+tests/test_pawpal.py::test_recurring_task_creates_next_occurrence PASSED [ 80%]
+tests/test_pawpal.py::test_detect_conflicts_flags_duplicate_times PASSED [100%]
+========================= 5 passed in 0.02s =========================
+```
 
-tests/test_pawpal.py::test_mark_complete PASSED                         [ 50%]
-tests/test_pawpal.py::test_add_task_increases_count PASSED              [100%]
-
-============================== 2 passed in 0.01s ==============================
+**Confidence Level:** ⭐⭐⭐ (3/5) — Core scheduling, sorting, recurrence, and conflict detection are all verified. Known limitation: conflict detection only checks exact time matches, not overlapping durations (documented in reflection.md).
 
 ## 📐 Smarter Scheduling
 

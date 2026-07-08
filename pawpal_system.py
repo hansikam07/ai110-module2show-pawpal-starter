@@ -18,6 +18,7 @@ from enum import Enum
 
 
 class Frequency(Enum):
+    ONE_TIME = "one_time"
     DAILY = "daily"
     WEEKLY = "weekly"
     MONTHLY = "monthly"
