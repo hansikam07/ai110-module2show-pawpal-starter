@@ -106,23 +106,51 @@ else:
         )
         st.success(f"Added '{task_title}' to {selected_pet.name}.")
 
-tasks = st.session_state.owner.get_all_tasks()
-if tasks:
-    st.write("Current tasks:")
-    st.table(
-        [
-            {
-                "pet": pet.name,
-                "task": task.description,
-                "time": task.time.strftime("%H:%M"),
-                "duration (min)": task.duration,
-                "priority": task.priority,
-            }
-            for pet, task in tasks
-        ]
-    )
-else:
+if not st.session_state.owner.get_all_tasks():
     st.info("No tasks yet. Add one above.")
+else:
+    st.write("Current tasks:")
+
+    # A fresh Scheduler each rerun reflects the latest pets/tasks and gives us
+    # access to filter_tasks() / sort_by_time() for this display.
+    display_scheduler = Scheduler(st.session_state.owner)
+
+    fcol1, fcol2, fcol3 = st.columns(3)
+    with fcol1:
+        pet_filter = st.selectbox(
+            "Filter by pet",
+            ["All pets"] + [p.name for p in st.session_state.owner.pets],
+        )
+    with fcol2:
+        only_incomplete = st.checkbox("Show only incomplete tasks")
+    with fcol3:
+        sort_by_time = st.checkbox("Sort tasks by time")
+
+    pairs = display_scheduler.filter_tasks(
+        pet_name=None if pet_filter == "All pets" else pet_filter,
+        completed=False if only_incomplete else None,
+    )
+    if sort_by_time:
+        # sort_by_time() orders the whole task set; here we order the filtered
+        # subset with the same key so both controls compose.
+        pairs = sorted(pairs, key=lambda pt: pt[1].time)
+
+    if pairs:
+        st.table(
+            [
+                {
+                    "pet": pet.name if pet is not None else "unassigned",
+                    "task": task.description,
+                    "time": task.time.strftime("%H:%M"),
+                    "duration (min)": task.duration,
+                    "priority": task.priority,
+                    "completed": task.completed,
+                }
+                for pet, task in pairs
+            ]
+        )
+    else:
+        st.info("No tasks match the current filters.")
 
 st.divider()
 
@@ -140,3 +168,8 @@ if st.button("Generate schedule"):
         scheduler = Scheduler(st.session_state.owner)
         scheduler.generate_plan(int(budget))
         st.text(scheduler.explain_reasoning())
+
+        # Surface any scheduling conflicts (tasks sharing the exact same time).
+        conflicts = scheduler.detect_conflicts()
+        for warning in conflicts:
+            st.warning(warning)
