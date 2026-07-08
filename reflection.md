@@ -1,16 +1,23 @@
 # PawPal+ Project Reflection
 
 ## 1. System Design
+My uML has four classes: Owner, Pet, Task, and Scheduler. Owner manages a list of pets. Pet holds the pet's basic info and a list of its tasks. Task holds the details for one task like time, priority, and how often it repeats. Scheduler pulls tasks from the owner's pets and figures out the best daily schedule.
+Owner: manages the list of pets and can pull all their tasks together
+Pet: stores its own info and manages its list of tasks
+Task: represents one task's details like time, priority, and frequency, and tracks if it's done
+Scheduler: takes all the tasks and builds the daily plan
 
 **a. Initial design**
 
-- Briefly describe your initial UML design.
-- What classes did you include, and what responsibilities did you assign to each?
+My initial UML had four classes. **Owner** stores a name and a list of Pets, and can add pets and gather all their tasks. **Pet** stores a name, species, and a list of Tasks, and can add tasks. **Task** holds one task's details — description, time, duration, priority, frequency, and a completed flag — and can mark itself complete. **Scheduler** takes an Owner and produces a daily plan, plus an explanation of its reasoning. Relationships: Owner aggregates many Pets, Pet composes many Tasks, and Scheduler depends on the Owner to reach the tasks.
 
 **b. Design changes**
 
-- Did your design change during implementation?
-- If yes, describe at least one change and why you made it.
+Yes. Reviewing the skeleton revealed three problems and I changed the design:
+
+1. **Lost pet context.** `get_all_tasks()` originally returned a flat `list[Task]`, so once tasks were flattened the Scheduler couldn't tell which pet a task belonged to — making a useful explanation ("Feed Rex at 8am") impossible. I changed it to return `list[tuple[Pet, Task]]` so the pet stays attached without adding a two-way Task→Pet dependency.
+2. **Untyped scheduling data.** `time` and `frequency` were plain strings, but strings don't sort by time (`"10am" < "8am"`) and can't be reasoned about. I switched `time` to `datetime.time` and `frequency` to a `Frequency` enum so `generate_plan()` can actually order and expand tasks.
+3. **Scheduler flexibility + state.** I widened the constructor to accept `Owner | list[Task]` (matching the original "Owner or list of tasks" idea) and added a cached `_plan` field so `explain_reasoning()` explains the plan `generate_plan()` produced instead of recomputing it.
 
 ---
 

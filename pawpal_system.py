@@ -7,15 +7,25 @@ No logic yet — attributes and empty method stubs only.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from datetime import time
+from enum import Enum
+
+
+class Frequency(Enum):
+    DAILY = "daily"
+    WEEKLY = "weekly"
+    MONTHLY = "monthly"
 
 
 @dataclass
 class Task:
     description: str
-    time: str
-    duration: int
+    time: time
+    duration: int  # minutes
     priority: int
-    frequency: str
+    frequency: Frequency
+    # NOTE: a single bool can't track "done today but due again tomorrow"
+    # for recurring tasks — revisit once recurrence logic is added.
     completed: bool = False
 
     def mark_complete(self) -> None:
@@ -40,16 +50,22 @@ class Owner:
     def add_pet(self, pet: Pet) -> None:
         ...
 
-    def get_all_tasks(self) -> list[Task]:
+    def get_all_tasks(self) -> list[tuple[Pet, Task]]:
+        # Returns (pet, task) pairs so callers keep track of which pet
+        # each task belongs to after flattening.
         ...
 
 
 class Scheduler:
-    def __init__(self, owner: Owner) -> None:
-        self.owner: Owner = owner
+    def __init__(self, source: Owner | list[Task]) -> None:
+        # Accepts either an Owner (schedule all its pets' tasks) or a
+        # standalone list of tasks (ad-hoc scheduling).
+        self.source: Owner | list[Task] = source
+        self._plan: list[Task] = []
 
     def generate_plan(self) -> list[Task]:
         ...
 
     def explain_reasoning(self) -> str:
+        # Explains self._plan produced by generate_plan().
         ...

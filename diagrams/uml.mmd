@@ -3,7 +3,7 @@ classDiagram
         +str name
         +List~Pet~ pets
         +add_pet(pet Pet) void
-        +get_all_tasks() List~Task~
+        +get_all_tasks() List~tuple~Pet,Task~~
     }
 
     class Pet {
@@ -15,20 +15,30 @@ classDiagram
 
     class Task {
         +str description
-        +str time
+        +time time
         +int duration
         +int priority
-        +str frequency
+        +Frequency frequency
         +bool completed
         +mark_complete() void
     }
 
+    class Frequency {
+        <<enumeration>>
+        DAILY
+        WEEKLY
+        MONTHLY
+    }
+
     class Scheduler {
-        +Owner owner
+        +Owner|List~Task~ source
+        +List~Task~ _plan
         +generate_plan() List~Task~
         +explain_reasoning() str
     }
 
     Owner "1" o-- "*" Pet : has
     Pet "1" *-- "*" Task : has
+    Task ..> Frequency : uses
     Scheduler ..> Owner : uses
+    Scheduler ..> Task : schedules
