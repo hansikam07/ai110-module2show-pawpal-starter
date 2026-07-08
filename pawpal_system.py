@@ -11,8 +11,9 @@ Priority convention: a HIGHER priority number means MORE important.
 
 from __future__ import annotations
 
+from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import time
+from datetime import date, time, timedelta
 from enum import Enum
 
 
@@ -29,13 +30,32 @@ class Task:
     duration: int  # minutes
     priority: int
     frequency: Frequency
-    # NOTE: a single bool can't track "done today but due again tomorrow"
-    # for recurring tasks — revisit once recurrence logic is added.
     completed: bool = False
+    due_date: date = field(default_factory=date.today)
 
-    def mark_complete(self) -> None:
-        """Mark this task as completed."""
+    def next_occurrence(self) -> Task:
+        """Return a fresh, incomplete copy of this task with due_date advanced by its frequency."""
+        step = {
+            Frequency.DAILY: timedelta(days=1),
+            Frequency.WEEKLY: timedelta(weeks=1),
+            Frequency.MONTHLY: timedelta(days=30),
+        }[self.frequency]
+        return Task(
+            self.description,
+            self.time,
+            self.duration,
+            self.priority,
+            self.frequency,
+            completed=False,
+            due_date=self.due_date + step,
+        )
+
+    def mark_complete(self) -> Task | None:
+        """Mark this task complete; return the next occurrence for recurring tasks, else None."""
         self.completed = True
+        if self.frequency in (Frequency.DAILY, Frequency.WEEKLY, Frequency.MONTHLY):
+            return self.next_occurrence()
+        return None
 
 
 @dataclass
@@ -85,6 +105,37 @@ class Scheduler:
         self._max_minutes: int = 0
         self._used_minutes: int = 0
         self._generated: bool = False
+
+    def sort_by_time(self) -> list[tuple[Pet | None, Task]]:
+        """Return all (pet, task) pairs sorted by task.time ascending."""
+        return sorted(self._pairs, key=lambda pt: pt[1].time)
+
+    def filter_tasks(
+        self, pet_name: str | None = None, completed: bool | None = None
+    ) -> list[tuple[Pet | None, Task]]:
+        """Return (pet, task) pairs filtered by pet name and/or completion status."""
+        return [
+            (pet, task)
+            for pet, task in self._pairs
+            if (pet_name is None or (pet is not None and pet.name == pet_name))
+            and (completed is None or task.completed == completed)
+        ]
+
+    def detect_conflicts(self) -> list[str]:
+        """Return warning strings for any tasks that share the exact same time."""
+        by_time: dict[time, list[tuple[Pet | None, Task]]] = defaultdict(list)
+        for pet, task in self._pairs:
+            by_time[task.time].append((pet, task))
+
+        warnings: list[str] = []
+        for t, group in by_time.items():
+            if len(group) > 1:
+                names = ", ".join(
+                    f"'{task.description}' ({pet.name if pet is not None else 'unassigned'})"
+                    for pet, task in group
+                )
+                warnings.append(f"Conflict at {t.strftime('%H:%M')}: {names}")
+        return warnings
 
     def generate_plan(self, max_minutes: int) -> list[Task]:
         """Build a daily plan constrained to ``max_minutes`` of total time.

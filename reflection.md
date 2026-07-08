@@ -30,6 +30,9 @@ Yes. Reviewing the skeleton surfaced three issues, which led to the following de
 
 - Describe one tradeoff your scheduler makes.
 - Why is that tradeoff reasonable for this scenario?
+My conflict detection only checks for exact time matches (task.time equality) rather than overlapping durations. This means a 07:30–08:10 walk and an 08:00 vet visit wouldn't be flagged as a conflict even though they overlap. I chose exact-match detection because it's simple and covers the most common real-world case (two tasks accidentally scheduled at the identical time), but a more robust version would compare time ranges using start/end times instead of a single timestamp.
+
+I also switched detect_conflicts() from a pairwise O(n²) comparison to a group-by-time O(n) approach after reviewing both with my AI assistant. Beyond the performance difference (irrelevant at this scale), the group-by-time version produces a single consolidated warning when 3+ tasks clash at the same time, instead of redundant pairwise warnings — a better tradeoff for readability from a pet owner's perspective.
 
 ---
 
