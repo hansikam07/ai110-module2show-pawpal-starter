@@ -22,6 +22,16 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## ✨ Features
+
+PawPal+ implements the following scheduling algorithms (see [`pawpal_system.py`](pawpal_system.py)):
+
+- **Sorting by time** — `Scheduler.sort_by_time()` returns every `(pet, task)` pair in ascending time-of-day order, regardless of the order tasks were added.
+- **Filtering by pet / completion status** — `Scheduler.filter_tasks(pet_name, completed)` narrows the task list by a specific pet, by completion status, or both; each filter is optional.
+- **Conflict detection** — `Scheduler.detect_conflicts()` flags tasks that share the exact same time. Tasks are grouped by time (O(n)), so three or more clashing tasks produce a single consolidated warning rather than redundant pairwise ones.
+- **Daily / weekly / monthly recurrence** — completing a recurring task (`Task.mark_complete()`) auto-generates the next occurrence via `Task.next_occurrence()`, advancing `due_date` by 1 day / 1 week / 30 days. One-off (`ONE_TIME`) tasks do not recur and return `None` on completion.
+- **Priority-aware daily planning** — `Scheduler.generate_plan(max_minutes)` greedily selects tasks by priority within a time budget and explains each decision via `explain_reasoning()`.
+
 ## Getting started
 
 ### Setup
@@ -111,12 +121,85 @@ tests/test_pawpal.py::test_detect_conflicts_flags_duplicate_times PASSED [100%]
 
 ## 📸 Demo Walkthrough
 
-Describe your app in numbered steps so a reader can follow along without watching a video:
+### What you can do in the app
 
-1. <!-- Describe this step -->
-2. <!-- Describe this step -->
-3. <!-- Describe this step -->
-4. <!-- Describe this step -->
-5. <!-- Add more steps as needed -->
+Launch the Streamlit UI with `streamlit run app.py`. From there you can:
+
+- **Add a pet** — enter a name and species, then click **Add pet**. Pets persist across interactions via Streamlit session state.
+- **Add tasks** — pick a pet, then set a task title, duration, priority (low/medium/high), time of day, and frequency (one-time / daily / weekly / monthly), and click **Add task**.
+- **Filter and sort the task table** — use *Filter by pet* and *Show only incomplete tasks* to narrow the list, and toggle *Sort tasks by time* to view it chronologically. These are backed by `Scheduler.filter_tasks()` and `Scheduler.sort_by_time()`.
+- **Generate a daily schedule** — set a time budget (in minutes) and click **Generate schedule** to see the plan and the scheduler's reasoning.
+- **See conflict warnings** — after generating a schedule, any tasks sharing the exact same time are surfaced as warnings via `Scheduler.detect_conflicts()`.
+
+### Example workflow
+
+1. Add a pet named **Mochi** (dog).
+2. Add a task: *Morning walk*, 20 min, high priority, 07:30, daily.
+3. Add a second task at the same time for a different pet to see a conflict warning.
+4. Set a time budget (e.g. 120 minutes) and click **Generate schedule**.
+5. Read *Today's Schedule* and the *Why this plan?* explanation; toggle *Sort tasks by time* to reorder the task table.
+
+### Key Scheduler behaviors demonstrated
+
+- **Sorting** — tasks added out of order are displayed chronologically.
+- **Conflict warnings** — two tasks at the same time (e.g. 09:00) produce a single consolidated warning.
+- **Recurrence** — completing a daily task advances its `due_date` by one day and produces the next occurrence.
+
+### Sample CLI output
+
+Running `python main.py` produces the full end-to-end demo below (scheduling, sorting, filtering, recurrence, and conflict detection):
+
+```
+============================================
+  Today's Schedule for Alex  (budget: 120 min)
+============================================
+  1. 07:30  Morning walk  (40 min, priority 6)
+  2. 08:00  Feed breakfast  (10 min, priority 8)
+  3. 15:00  Vet appointment  (60 min, priority 9)
+
+--------------------------------------------
+  Why this plan?
+--------------------------------------------
+Daily plan: 110/120 minutes scheduled across 3 task(s).
+
+Selection (highest priority first, fit by remaining time):
+  ✓ 'Vet appointment' for Rex [priority 9, 60 min] — fits (60/120 min used)
+  ✓ 'Feed breakfast' for Luna [priority 8, 10 min] — fits (70/120 min used)
+  ✓ 'Morning walk' for Rex [priority 6, 40 min] — fits (110/120 min used)
+  ✗ 'Play & grooming' for Luna [priority 4, 45 min] — needs 45 min but only 10 left
+
+Final order (by time of day):
+  07:30  'Morning walk' for Rex (40 min, priority 6)
+  08:00  'Feed breakfast' for Luna (10 min, priority 8)
+  15:00  'Vet appointment' for Rex (60 min, priority 9)
+
+--------------------------------------------
+  Sorted by time
+--------------------------------------------
+  06:45  Litter cleanup  (Luna)
+  07:30  Morning walk  (Rex)
+  08:00  Feed breakfast  (Luna)
+  12:00  Midday water refill  (Rex)
+  15:00  Vet appointment  (Rex)
+  18:30  Play & grooming  (Luna)
+  20:00  Evening walk  (Rex)
+
+--------------------------------------------
+  Filtered: incomplete tasks for Luna
+--------------------------------------------
+  18:30  Play & grooming  (Luna)
+  06:45  Litter cleanup  (Luna)
+
+--------------------------------------------
+  Recurring task demo
+--------------------------------------------
+  Original: due 2026-07-08, completed=True
+  Next up:  due 2026-07-09, completed=False
+
+--------------------------------------------
+  Conflict detection demo
+--------------------------------------------
+  Conflict at 09:00: 'Brush teeth' (Rex), 'Morning meds' (Luna)
+```
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or link to a demo video here -->

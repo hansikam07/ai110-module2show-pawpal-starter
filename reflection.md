@@ -43,10 +43,14 @@ I also switched detect_conflicts() from a pairwise O(n²) comparison to a group-
 - How did you use AI tools during this project (for example: design brainstorming, debugging, refactoring)?
 - What kinds of prompts or questions were most helpful?
 
+I used AI for variosu parts including design brainstorm, debgging, refactoring, classes building UML implementation, debugging the ass tasks and scheduler. helpful prompst were ones with good direction that were brief and only had teh agent work on what was necessary. 
+
 **b. Judgment and verification**
 
 - Describe one moment where you did not accept an AI suggestion as-is.
 - How did you evaluate or verify what the AI suggested?
+
+I didn't acept all of teh AI scheduling algorithm ideas, I focused in what was necessary and didn't unecessarily complicate it. Even after AI verified I manually opened the borwser and tested how tasks were being added and added pets and created schedules. I also ran my own terminal tests. 
 
 ---
 
@@ -57,10 +61,14 @@ I also switched detect_conflicts() from a pairwise O(n²) comparison to a group-
 - What behaviors did you test?
 - Why were these tests important?
 
+adding tasks, sorting tasks, reoccurence, task completion, conflict detection. these were important to test caus ethese are some of the core features and wanted them to work past just having buttons. 
+
 **b. Confidence**
 
 - How confident are you that your scheduler works correctly?
 - What edge cases would you test next if you had more time?
+
+I am a 4/5 as the logic and tests are passing and it looks correct to my eyes. But there might be some logic I missed in my testing. i would test overlapping times, how reoccurence are processed.
 
 ---
 
@@ -69,11 +77,14 @@ I also switched detect_conflicts() from a pairwise O(n²) comparison to a group-
 **a. What went well**
 
 - What part of this project are you most satisfied with?
+learning how to use AI and test on my own. learnong to debug my add tasks when it was stuck. 
 
 **b. What you would improve**
 
 - If you had another iteration, what would you improve or redesign?
+I would do more stretch features and check more edge cases in my project.
 
 **c. Key takeaway**
 
 - What is one important thing you learned about designing systems or working with AI on this project?
+While AI can write teh code to check true functionality I had to manually work and check how it worked and the actual practicality fo it. I also learnt how to prompt AI even more specifically to avoid unecessary changes. 
