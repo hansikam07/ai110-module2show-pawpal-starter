@@ -24,13 +24,12 @@ Your final app should:
 
 ## ✨ Features
 
-PawPal+ implements the following scheduling algorithms (see [`pawpal_system.py`](pawpal_system.py)):
-
-- **Sorting by time** — `Scheduler.sort_by_time()` returns every `(pet, task)` pair in ascending time-of-day order, regardless of the order tasks were added.
-- **Filtering by pet / completion status** — `Scheduler.filter_tasks(pet_name, completed)` narrows the task list by a specific pet, by completion status, or both; each filter is optional.
-- **Conflict detection** — `Scheduler.detect_conflicts()` flags tasks that share the exact same time. Tasks are grouped by time (O(n)), so three or more clashing tasks produce a single consolidated warning rather than redundant pairwise ones.
-- **Daily / weekly / monthly recurrence** — completing a recurring task (`Task.mark_complete()`) auto-generates the next occurrence via `Task.next_occurrence()`, advancing `due_date` by 1 day / 1 week / 30 days. One-off (`ONE_TIME`) tasks do not recur and return `None` on completion.
-- **Priority-aware daily planning** — `Scheduler.generate_plan(max_minutes)` greedily selects tasks by priority within a time budget and explains each decision via `explain_reasoning()`.
+PawPal+ implements the followinPawPal+ implements the following scheduling algorithms (see pawpal_system.py):
+Sorting by time. Scheduler.sort_by_time() returns every (pet, task) pair in order of time of day, no matter what order the tasks were added in.
+Filtering by pet or completion status. Scheduler.filter_tasks(pet_name, completed) narrows the task list to a specific pet, a completion status, or both. Both filters are optional.
+Conflict detection. Scheduler.detect_conflicts() flags tasks that land on the exact same time. Tasks are grouped by time instead of compared pairwise, so if three or more tasks clash at once, you get a single combined warning instead of several repeated ones.
+Daily, weekly, and monthly recurrence. Completing a recurring task through Task.mark_complete() automatically generates the next occurrence via Task.next_occurrence(), pushing the due date forward by 1 day, 1 week, or 30 days depending on frequency. One-off tasks (ONE_TIME) don't recur and just return None when completed.
+Priority-aware daily planning. Scheduler.generate_plan(max_minutes) greedily picks tasks by priority within a set time budget, and explain_reasoning() walks through why each decision was made.
 
 ## Getting started
 
