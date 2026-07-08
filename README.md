@@ -46,13 +46,28 @@ pip install -r requirements.txt
 
 Paste a sample of your app's CLI or Streamlit output here so a reader can see what a generated plan looks like:
 
-```
-# e.g.:
-# Daily plan for Biscuit (Golden Retriever):
-#   08:00 — Morning walk (30 min) [priority: high]
-#   09:00 — Feeding (10 min) [priority: high]
-#   ...
-```
+============================================
+  Today's Schedule for Alex  (budget: 120 min)
+============================================
+  1. 07:30  Morning walk  (40 min, priority 6)
+  2. 08:00  Feed breakfast  (10 min, priority 8)
+  3. 15:00  Vet appointment  (60 min, priority 9)
+
+--------------------------------------------
+  Why this plan?
+--------------------------------------------
+Daily plan: 110/120 minutes scheduled across 3 task(s).
+
+Selection (highest priority first, fit by remaining time):
+  ✓ 'Vet appointment' for Rex [priority 9, 60 min] — fits (60/120 min used)
+  ✓ 'Feed breakfast' for Luna [priority 8, 10 min] — fits (70/120 min used)
+  ✓ 'Morning walk' for Rex [priority 6, 40 min] — fits (110/120 min used)
+  ✗ 'Play & grooming' for Luna [priority 4, 45 min] — needs 45 min but only 10 left
+
+Final order (by time of day):
+  07:30  'Morning walk' for Rex (40 min, priority 6)
+  08:00  'Feed breakfast' for Luna (10 min, priority 8)
+  15:00  'Vet appointment' for Rex (60 min, priority 9)
 
 ## 🧪 Testing PawPal+
 
@@ -66,9 +81,16 @@ pytest --cov
 
 Sample test output:
 
-```
-# Paste your pytest output here
-```
+============================= test session starts =============================
+platform darwin -- Python 3.14.5, pytest-9.1.1, pluggy-1.6.0 -- /Library/Frameworks/Python.framework/Versions/3.14/bin/python3
+cachedir: .pytest_cache
+rootdir: /Users/hansikamodupalli/ai110-module2show-pawpal-starter
+collected 2 items                                                             
+
+tests/test_pawpal.py::test_mark_complete PASSED                         [ 50%]
+tests/test_pawpal.py::test_add_task_increases_count PASSED              [100%]
+
+============================== 2 passed in 0.01s ==============================
 
 ## 📐 Smarter Scheduling
 
